@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+	
+<header />
+<style>
+	body{
+		position:absolute;
+			height:100vh;
+			width:100vw;
+		padding-top:0;
+			padding-left:0;
+			margin-top:0;
+			margin-left:0;
+		overflow:hidden;
+		background-color:#ff0055;
+		cursor:pointer;
+	}
+		#output{
+			position:relative;
+				width:100%;
+			padding-top:42vh;
+			font-size:5vmin;
+				color:#fff;
+				text-align:center;
+			transition: 0.42s ease-in-out;
+		}
+		#avg{
+			position:relative;
+				width:100%;
+			padding-top:3vh;
+			font-size:3vmin;
+				color:#fff;
+				text-align:center;
+			transition: 0.24s ease-in-out;
+		}
+	
+</style>
+
+<body onmousemove="updateMouseLocation(event)" onclick="startTest()">
+
+		<p id=output>Click anywhere to start.</p>
+		<p id=avg></p>
+		
+</body>	
+
+
+<script>
+	const text =document.getElementById('output'),
+		screen =document.body,
+		AVG =document.getElementById('avg');
+	
+	var y =0, x =0, inMiddleOfTestCurrently =false;
+	
+	
+	var previousAttempts =[];
+	const updateList =function(current){
+	
+		previousAttempts.unshift(current);
+		previousAttempts.length= 8;
+		
+		let tempAVG =0, num =0;
+		for(let i=0;i< previousAttempts.length ;i++){
+			if(previousAttempts[i]){
+				tempAVG+= previousAttempts[i];
+				num++;
+			
+			}else break;
+		}
+		
+		tempAVG/= num ||1;
+		AVG.innerHTML= Math.round(tempAVG) +' ms';
+	}
+	
+	
+	const updateMouseLocation =function(ev){
+		y= ev.clientY;
+		x= ev.clientX;
+	}
+	
+	function startTest(){
+		if(inMiddleOfTestCurrently) return;
+		inMiddleOfTestCurrently= true;
+		
+		text.style.opacity= 0;
+		AVG.style.opacity= 0;
+		let oldY =y, oldX =x;
+		let repeat, oldDate =new Date(), hasBegun =false;
+		
+		setTimeout(() =>{
+			if(oldY == y  &&  oldX == x){
+				oldDate =new Date();
+				hasBegun= true;
+				screen.style.backgroundColor= '#00ffbb';
+			}
+		}, (Math.random() +1) *1000 );
+		
+		
+		repeat= setInterval(() =>{
+			if(oldY != y  ||  oldX != x){
+				if(hasBegun){
+					let finalTime =new Date() -oldDate;
+					text.innerHTML= finalTime +' ms';
+					updateList(finalTime);
+				}else{
+					text.innerHTML= 'you couldn\'t last ' +((new Date() -oldDate) /1000) +' fucking seconds could you.';
+				}
+				
+				screen.style.backgroundColor= '#ff0055';
+				clearInterval(repeat);
+				
+				text.style.opacity =1;
+				setTimeout(() =>{
+					text.style.opacity= 0;
+					setTimeout(() =>{
+						text.innerHTML= 'Click anywhere to start.';
+						inMiddleOfTestCurrently= false;
+						text.style.opacity= 1;
+						AVG.style.opacity= 1;
+					}, 500);
+				}, 1000 +(!hasBegun ?2500 :0));
+			}
+		}, 5);
+		
+	}
+	
+</script>	
+</html>
