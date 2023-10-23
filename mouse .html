@@ -12,7 +12,7 @@
 			margin-top:0;
 			margin-left:0;
 		overflow:hidden;
-		background-color:#ff0055;
+		background-color:#e882ab;
 		cursor:pointer;
 	}
 		#output{
@@ -38,7 +38,7 @@
 
 <body onmousemove="updateMouseLocation(event)" onclick="startTest()">
 
-		<p id=output>Click anywhere to start.</p>
+		<p id=output>Click anywhere to start.  <br><br><span style="font-size:0.8em">Red = <span style="color:#fc2003">stop.</span><br>Green = <span style="color:#5efc03">go!</span></span></p>
 		<p id=avg></p>
 		
 </body>	
@@ -50,6 +50,8 @@
 		AVG =document.getElementById('avg');
 	
 	var y =0, x =0, inMiddleOfTestCurrently =false;
+	
+	const _rnd =(num) => Math.round(num*100)/100
 	
 	
 	var previousAttempts =[];
@@ -68,7 +70,7 @@
 		}
 		
 		tempAVG/= num ||1;
-		AVG.innerHTML= Math.round(tempAVG) +' ms';
+		AVG.innerHTML= `${Math.round(tempAVG)} ms <br><span style="color:${tempAVG > 250  ?'#fc2003">-' +_rnd((tempAVG/250 -1)*100)  :'#5efc03">+' +_rnd((250/tempAVG -1)*100)}%</span> of human avg.`;
 	}
 	
 	
@@ -96,16 +98,33 @@
 		
 		
 		repeat= setInterval(() =>{
-			if(oldY != y  ||  oldX != x){
-				if(hasBegun){
-					let finalTime =new Date() -oldDate;
+			if(oldY != y  ||  oldX != x)
+			{
+				let finalTime =new Date() -oldDate;
+				
+				if(hasBegun)
+				{
 					text.innerHTML= finalTime +' ms';
 					updateList(finalTime);
-				}else{
-					text.innerHTML= 'you couldn\'t last ' +((new Date() -oldDate) /1000) +' fucking seconds could you.';
+				
+				}else if( finalTime < 750 )		// ignore if people move within first 750ms
+				{
+					oldY =y;
+					oldX =x;
+					return;
+				
+				}else if(false)
+				{
+					// add logic for if mouse only moves a *little* we ignore it, since people might get confused  (would replace above code)
+				
+				}else
+				{
+					text.innerHTML= 'wait for the screen to turn Green before moving your mouse <br><br>(this might take more than ' +((new Date() -oldDate) /1000) +' seconds!)';
+					
+					// add "click to continue"
 				}
 				
-				screen.style.backgroundColor= '#ff0055';
+				screen.style.backgroundColor= '#e882ab';
 				clearInterval(repeat);
 				
 				text.style.opacity =1;
@@ -117,7 +136,7 @@
 						text.style.opacity= 1;
 						AVG.style.opacity= 1;
 					}, 500);
-				}, 1000 +(!hasBegun ?2500 :0));
+				}, 1000 +(!hasBegun ?3500 :0));
 			}
 		}, 5);
 		
